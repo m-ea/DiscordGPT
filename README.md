@@ -8,7 +8,7 @@
 TOKEN=paste your discord app token
 OPENAI_KEY=paste your OpenAI API key
 ```
-3. Create a Python virtual environment in the DiscordGPT folder and install dependencies. Execute these commands when DiscordGPT is the CWD:
+3. Create a Python virtual environment in the DiscordGPT folder and install dependencies. Do this by CD'ing to DiscordGPT and executing these commands:
 ```pip install pipenv```
 ```pipenv shell```
 ```pipenv update```
