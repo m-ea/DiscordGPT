@@ -3,7 +3,6 @@ import os
 import openai
 import discord
 import requests
-import io
 
 # Update the system prompt to provide high-level instructions before the conversation begins.
 system_prompt = "You are a helpful AI assistant."
@@ -11,45 +10,56 @@ system_prompt = "You are a helpful AI assistant."
 ### AUTH ###
 dotenv.load_dotenv('.env')
 openai.api_key = os.getenv("OPENAI_KEY")
-elevenLabs_key = {"xi-api-key": os.getenv("ELEVENLABS_KEY")}
+try:
+    elevenLabs_key = {"xi-api-key": os.getenv("ELEVENLABS_KEY")}
+except:
+    print("No ElevenLabs API key detected. Voice will not function.")
 
 bot = discord.Bot()
-stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream"
+stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM"
 
 ### OPENAI ###
 conversation = [{"role": "system", "content": system_prompt}]
 def convo(input):
+    global conversation
     message = {"role":"user", "content": input}
     conversation.append(message)
+    print("Sending request to OpenAI")
     completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=conversation) 
+    print("Received response from OpenAI")
     conversation.append(completion.choices[0].message)
     return conversation[-1]["content"]
 
 ### DISCORD ###
 @bot.slash_command(name="chatgpt", description = "Submit a message to ChatGPT.")
 async def chatgpt(ctx, message: discord.Option(str, "The text to send to ChatGPT")):
-
     global conversation
-    
+
     # Send text to ChatGPT
     await ctx.defer()
     if len(conversation) == 1:
         await ctx.respond("New conversation started. Please wait...")
     raw_response = convo(message)
+    print("Posting response to text channel...")
     response = f"**Input:** {message}\n\n**Response:** {raw_response}"
     await ctx.respond(response)
+    print("Response posted to text channel.")
         
-    # Stream audio to voice if connected
+    ### ELEVENLABS ###
     if ctx.author.voice is not None:
-        request_body = {"text": raw_response, "voice_settings": {"stability": 0, "similarity_boost": 0}}
+        # Create, send, and receive ElevenLabs content
+        request_body = {"text": raw_response, "voice_settings": {"stability": 0.25, "similarity_boost": 0.75}}
         response = requests.post(stream_endpoint, json=request_body, headers=elevenLabs_key)
+        print(f"ElevenLabs response code: {response.status_code}")
+        
+        # Process and play received audio
         if response.status_code == 200:
-            print(str(response.status_code))
-            audio_file = io.BytesIO(response.content)
-            audio_source = discord.FFmpegPCMAudio.read(audio_file)
+            with open("wav_file.wav", "wb") as local_file:
+                local_file.write(response.content)
+            audio_source = discord.FFmpegPCMAudio('./wav_file.wav')
             ctx.voice_client.play(audio_source)
         else:
-            await ctx.respond("Voice playback failed. Did not receive a proper response from ElevenLabs.")
+            await ctx.respond(f"Voice playback failed. Received status code {response.status_code}")
 
 @bot.slash_command(name = "reset", description = "Reset the conversation.")
 async def join(ctx):
