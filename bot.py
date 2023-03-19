@@ -3,6 +3,7 @@ import os
 import openai
 import discord
 import requests
+import json
 
 # Update the system prompt to provide high-level instructions before the conversation begins.
 system_prompt = "You are a helpful AI assistant."
@@ -16,7 +17,6 @@ except:
     print("No ElevenLabs API key detected. Voice will not function.")
 
 bot = discord.Bot()
-stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM"
 
 ### OPENAI ###
 conversation = [{"role": "system", "content": system_prompt}]
@@ -29,6 +29,18 @@ def convo(input):
     print("Received response from OpenAI")
     conversation.append(completion.choices[0].message)
     return conversation[-1]["content"]
+
+### ELEVENLABS ###
+def get_voices():
+    voices = []
+    voice_endpoint = "https://api.elevenlabs.io/v1/voices"
+    response = requests.get(voice_endpoint, headers=elevenLabs_key)
+    print(f"ElevenLabs get voices response code: {response.status_code}")
+    if response.status_code == 200:
+        converted_response = json.loads(response.content.decode('utf-8'))
+        for i in converted_response["voices"]:
+            voices.append(i)
+    return voices
 
 ### DISCORD ###
 @bot.slash_command(name="chatgpt", description = "Submit a message to ChatGPT.")
@@ -46,6 +58,7 @@ async def chatgpt(ctx, message: discord.Option(str, "The text to send to ChatGPT
     print("Response posted to text channel.")
         
     ### ELEVENLABS ###
+    stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM"
     if ctx.author.voice is not None:
         # Create, send, and receive ElevenLabs content
         request_body = {"text": raw_response, "voice_settings": {"stability": 0.25, "similarity_boost": 0.75}}
@@ -96,5 +109,22 @@ async def leave(ctx):
     # Disconnect the bot from the voice channel
     await ctx.voice_client.disconnect()
     await ctx.respond("Disconnected from the voice channel.")
+
+@bot.slash_command(name="voices", description = "Select the voice to use in voice chat.")
+async def voices(ctx):
+    voices = get_voices()
+    voice_options = []
+
+    for voice in voices:
+        voice_options.append(discord.SelectOption(label=voice["name"], description=voice["category"]))
+
+    select = discord.ui.Select(
+        placeholder="Choose which voice to use.",
+        options = voice_options
+    )
+
+    view = discord.ui.View()
+    view.add_item(select)
+    await ctx.respond("Choose which voice to use in voice chat.", view=view)
 
 bot.run(os.getenv("TOKEN"))
