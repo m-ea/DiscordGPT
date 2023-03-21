@@ -4,6 +4,7 @@ import openai
 import discord
 import requests
 import json
+import logging
 
 # Update the system prompt to provide high-level instructions before the conversation begins.
 system_prompt = "You are a helpful AI assistant."
@@ -16,6 +17,7 @@ try:
 except:
     print("No ElevenLabs API key detected. Voice will not function.")
 
+logging.basicConfig(level=logging.INFO)
 bot = discord.Bot()
 
 ### OPENAI ###
@@ -42,6 +44,11 @@ def get_voices():
             voices.append(i)
     return voices
 
+stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM"
+def build_endpoint(voice_id):
+    global stream_endpoint
+    stream_endpoint = ("https://api.elevenlabs.io/v1/text-to-speech/" + voice_id)
+
 ### DISCORD ###
 @bot.slash_command(name="chatgpt", description = "Submit a message to ChatGPT.")
 async def chatgpt(ctx, message: discord.Option(str, "The text to send to ChatGPT")):
@@ -58,7 +65,6 @@ async def chatgpt(ctx, message: discord.Option(str, "The text to send to ChatGPT
     print("Response posted to text channel.")
         
     ### ELEVENLABS ###
-    stream_endpoint = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM"
     if ctx.author.voice is not None:
         # Create, send, and receive ElevenLabs content
         request_body = {"text": raw_response, "voice_settings": {"stability": 0.25, "similarity_boost": 0.75}}
@@ -75,7 +81,7 @@ async def chatgpt(ctx, message: discord.Option(str, "The text to send to ChatGPT
             await ctx.respond(f"Voice playback failed. Received status code {response.status_code}")
 
 @bot.slash_command(name = "reset", description = "Reset the conversation.")
-async def join(ctx):
+async def reset(ctx):
     global conversation
     conversation = [{"role": "system", "content": system_prompt}]
     await ctx.respond("Conversation ended.")
@@ -116,13 +122,23 @@ async def voices(ctx):
     voice_options = []
 
     for voice in voices:
-        voice_options.append(discord.SelectOption(label=voice["name"], description=voice["category"]))
+        voice_options.append(discord.SelectOption(label=voice["name"], description=voice["voice_id"]))
 
     select = discord.ui.Select(
         placeholder="Choose which voice to use.",
         options = voice_options
     )
 
+    async def callback(interaction):
+        print(select.values[0])
+        for voice in voices:
+            if voice["name"] == select.values[0]:
+                voice_id = voice["voice_id"]
+                build_endpoint(voice_id)
+                continue
+        await interaction.response.send_message(f"Selected {select.values[0]}")
+
+    select.callback = callback
     view = discord.ui.View()
     view.add_item(select)
     await ctx.respond("Choose which voice to use in voice chat.", view=view)
