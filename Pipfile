@@ -9,6 +9,7 @@ openai = "*"
 py-cord = "*"
 pynacl = "*"
 pydub = "*"
+requests = "*"
 
 [dev-packages]
 
