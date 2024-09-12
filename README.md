@@ -6,17 +6,16 @@
 - Create a file called .env in the DiscordGPT folder. It needs to contain your credentials:
 ```
 TOKEN=paste your discord app token
-OPENAI_KEY=paste your OpenAI API key
+OPENAI_API_KEY=paste your OpenAI API key
 ELEVENLABS_KEY=paste your ElevenLabs API key
 ```
-ElevenLabs requires a subscription to use voice features.
 - Create a Python virtual environment in the DiscordGPT folder and install dependencies. Execute these commands when DiscordGPT is the current working directory:
 ```pip install pipenv```
 ```pipenv shell```
 ```pipenv update```
 - Optional - If using voice, install ffmpeg and include it in your PATH environment variable. Voice will not work without it.
     https://ffmpeg.org/download.html
-- Optional - Change the system_prompt variable in bot.py. This allows you to provide high-level instructions before conversations begin.
+- Optional - Change the system_prompt variable in BotConstruct.py. This allows you to provide high-level instructions before conversations begin.
 - Run the bot:
 ```python bot.py```
 
@@ -45,3 +44,5 @@ Conversations persist across text channels. This means if you say something in o
 
 ## Future plans
 - Add error handling.
+- Add config
+- Add music feature that can dynamically select Udio tracks from your Udio profile and play them under the Elevenlabs VO
