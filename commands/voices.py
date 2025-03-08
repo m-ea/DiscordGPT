@@ -2,8 +2,9 @@ import requests
 import discord
 import json
 
-from BotConstruct import bot, elevenLabs_key
+from services.BotConstruct import bot
 import services.elevenlabs as elevenlabs
+from services.elevenlabs import elevenLabs_key
 
 ### ELEVENLABS ###
 def get_voices():

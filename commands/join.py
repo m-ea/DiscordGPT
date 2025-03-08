@@ -1,6 +1,7 @@
 import discord
 
-from BotConstruct import bot
+import config
+from services.BotConstruct import bot
 
 @bot.slash_command(name = "join", description = "Make the bot join the voice channel to which you are connected.")
 async def join(ctx):
@@ -19,5 +20,7 @@ async def join(ctx):
         await ctx.respond("I'm already in a voice channel.")
     except Exception as e:
         await ctx.respond(f"An error occurred: {e}")
+
+    config.voice_output_enabled = True
 
     await ctx.respond(f"Connected to {voice_channel}")

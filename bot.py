@@ -1,6 +1,6 @@
 import os
 
-from BotConstruct import bot
+from services.BotConstruct import bot
 
 from commands import join, leave, merge, reset, voices, chatgpt
 

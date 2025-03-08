@@ -1,0 +1,75 @@
+{
+  "music": [
+    {
+      "id": "0000",
+      "udio_id": null,
+      "artist": null,
+      "title": null,
+      "prompt": null,
+      "plays": 0,
+      "song_path": null,
+      "tags": [
+        {
+          "genres": [
+          ],
+          "moods": [
+          ]
+        }
+      ],
+      "duration": null,
+      "bpm": null
+    },
+    {
+      "id": "0001",
+      "udio_id": "fbe6fcb0-a919-40c6-8ffb-ec0e76699ef5",
+      "artist": "meaton",
+      "title": "Echoes of Serenity",
+      "prompt": "Orchestral Ambient Music for deep Focus and Relaxation",
+      "plays": 0,
+      "song_path": "https://storage.googleapis.com/udio-artifacts-c33fe3ba-3ffe-471f-92c8-5dfef90b3ea3/samples/dafc02144b194d47b4100ec34ecdba68/1/Echoes%2520of%2520Serenity.mp3",
+      "tags": [
+        {
+          "genres": [
+            "classical music",
+            "western classical music",
+            "modern classical",
+            "ambient",
+            "instrumental"
+          ],
+          "moods": [
+            "brooding",
+            "atmospheric",
+            "melancholic",
+            "calm",
+            "peaceful"
+          ]
+        }
+      ],
+      "duration": 32,
+      "bpm": null
+    },
+    {
+      "id": "0002",
+      "udio_id": null,
+      "artist": "Thomas Newman",
+      "title": "Rock Island 1931",
+      "prompt": null,
+      "plays": 0,
+      "song_path": "./1.wav",
+      "tags": [
+        {
+          "genres": [
+            "soundtrack",
+            "orchestral soundtrack",
+            "instrumental"
+          ],
+          "moods": [
+            "rousing"
+          ]
+        }
+      ],
+      "duration": 202,
+      "bpm": 140
+    }
+  ]
+}
