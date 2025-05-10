@@ -12,7 +12,11 @@ def get_voices():
     voice_endpoint = "https://api.elevenlabs.io/v1/voices"
     response = requests.get(voice_endpoint, headers=elevenLabs_key)
     print(f"ElevenLabs get voices response code: {response.status_code}")
-    if response.status_code == 200:
+    if response.status_code == 400:
+        print("Error getting voices from ElevenLabs. Ensure the API key is valid.")
+        voices.append("400_error")
+        return voices
+    elif response.status_code == 200:
         converted_response = json.loads(response.content.decode('utf-8'))
         for i in converted_response["voices"]:
             voices.append(i)
@@ -21,6 +25,10 @@ def get_voices():
 @bot.slash_command(name="voices", description = "Select the voice to use in voice chat.")
 async def voices(ctx):
     voices = get_voices()
+    if voices[0] == "400_error":
+        await ctx.respond("Error getting voices from ElevenLabs. Ensure the API key is valid.")
+        return
+    
     voice_options = []
 
     for voice in voices:
